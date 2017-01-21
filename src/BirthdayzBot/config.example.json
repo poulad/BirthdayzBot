@@ -1,0 +1,5 @@
+﻿{
+  "AccessToken": "",
+  "BirthdayzConnectionString": "Host=localhost;Database=birthdayz;Username=birthdayz;Password=birthdayz",
+  "BotName": "Birthdayz_Bot"
+}
