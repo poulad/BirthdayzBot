@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using BirthdayzBot.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -16,9 +13,10 @@ namespace BirthdayzBot
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
+                .AddEnvironmentVariables("BirthdayzBot_")
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
-                .AddEnvironmentVariables();
+                .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+                
             Configuration = builder.Build();
         }
 
@@ -37,7 +35,16 @@ namespace BirthdayzBot
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute("Default", "{controller}/{action}/{id?}",
+                    new
+                    {
+                        Controller = nameof(BirthdayzBotController).Replace("Controller", ""),
+                        Action = nameof(BirthdayzBotController.Updates)
+                    }
+                    );
+            });
         }
     }
 }
