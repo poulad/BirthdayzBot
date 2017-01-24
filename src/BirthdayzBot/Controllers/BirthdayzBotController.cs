@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BirthdayzBot.Commands;
-using BirthdayzBot.Models;
 using Microsoft.AspNetCore.Mvc;
 using NetTelegramBotApi;
 using NetTelegramBotApi.Requests;
+using NetTelegramBotApi.Types;
+using NetTelegramBotApi.Util;
 using Newtonsoft.Json;
 
 namespace BirthdayzBot.Controllers
@@ -18,12 +20,14 @@ namespace BirthdayzBot.Controllers
             _bot = bot;
         }
 
+        [Route("[controller]/[action]")]
         public async Task<IActionResult> Me()
         {
             var me = await _bot.MakeRequestAsync(new GetMe());
             return Json(me, new JsonSerializerSettings() { Formatting = Formatting.Indented });
         }
 
+        [Route("[controller]/[action]")]
         public async Task<IActionResult> Updates()
         {
             var logs = new List<string>();
@@ -63,6 +67,44 @@ namespace BirthdayzBot.Controllers
             }
             await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
             return Json(logs, new JsonSerializerSettings() { Formatting = Formatting.Indented });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ProcessUpdate([FromBody]object data)
+        {
+            var update = ParseUpdate(data);
+            if (update == null)
+            {
+                return BadRequest();
+            }
+
+            await _bot.MakeRequestAsync(new ForwardMessage(update.Message.Chat.Id, update.Message.Chat.Id,
+                update.Message.MessageId));
+
+            return Ok();
+        }
+
+        private Update ParseUpdate(object data)
+        {
+            if (data == null)
+                return null;
+
+            Update update;
+            var settings = new JsonSerializerSettings()
+            {
+                ContractResolver = new JsonLowerCaseUnderscoreContractResolver(),
+                Converters = new List<JsonConverter>() { new UnixDateTimeConverter() }
+            };
+            try
+            {
+                update = JsonConvert.DeserializeObject<Update>(data.ToString(), settings);
+            }
+            catch (Exception)
+            {
+                // todo: log
+                update = null;
+            }
+            return update;
         }
     }
 }
