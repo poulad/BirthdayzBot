@@ -51,18 +51,11 @@ namespace BirthdayzBot
 
             app.UseMvc(routes =>
             {
-                routes.MapRoute(botName, webhookRoute,
+                routes.MapRoute(botName, webhookRoute + "/{action}",
                     new
                     {
                         Controller = nameof(BirthdayzBotController).Replace("Controller", ""),
                         Action = nameof(BirthdayzBotController.ProcessUpdate)
-                    });
-
-                routes.MapRoute("Me", $"{botName}/me",
-                    new
-                    {
-                        Controller = nameof(BirthdayzBotController).Replace("Controller", ""),
-                        Action = nameof(BirthdayzBotController.Me)
                     });
             });
             var info = _bot.MakeRequestAsync(new GetWebhookInfo()).Result;
@@ -70,7 +63,7 @@ namespace BirthdayzBot
             var hostName = Configuration.GetValue<string>("HostName");
             if (Configuration.GetValue<bool>("UseWebhook") && !string.IsNullOrEmpty(certificate) && !string.IsNullOrEmpty(hostName))
             {
-                var url = $"https://{webhookRoute}";
+                var url = $"https://{hostName}/{webhookRoute}";
                 var isWebhookSet = _bot.MakeRequestAsync(new SetWebhook(url, new FileToSend(new FileStream(certificate, FileMode.Open), "certificate.pem"))).Result;
                 // todo : log the result
             }

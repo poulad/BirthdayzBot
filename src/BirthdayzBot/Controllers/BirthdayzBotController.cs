@@ -26,7 +26,6 @@ namespace BirthdayzBot.Controllers
             return Json(me, new JsonSerializerSettings() { Formatting = Formatting.Indented });
         }
 
-        [Route("[controller]/[action]")]
         public async Task<IActionResult> Updates()
         {
             var logs = new List<string>();
