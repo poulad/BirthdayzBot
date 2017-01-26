@@ -20,13 +20,6 @@ namespace BirthdayzBot.Controllers
             _bot = bot;
         }
 
-        [Route("/")]
-        public IActionResult Welcome()
-        {
-            return Content("Welcome!");
-        }
-
-        [Route("[controller]/[action]")]
         public async Task<IActionResult> Me()
         {
             var me = await _bot.MakeRequestAsync(new GetMe());

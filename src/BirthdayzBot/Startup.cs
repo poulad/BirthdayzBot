@@ -38,6 +38,7 @@ namespace BirthdayzBot
         {
             var botName = Configuration["BotName"];
             var apiToken = Configuration["ApiToken"];
+            var webhookRoute = $"{botName.ToLower()}/{apiToken}";
 
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -50,19 +51,26 @@ namespace BirthdayzBot
 
             app.UseMvc(routes =>
             {
-                routes.MapRoute(botName, apiToken,
+                routes.MapRoute(botName, webhookRoute,
                     new
                     {
                         Controller = nameof(BirthdayzBotController).Replace("Controller", ""),
                         Action = nameof(BirthdayzBotController.ProcessUpdate)
                     });
+
+                routes.MapRoute("Me", $"{botName}/me",
+                    new
+                    {
+                        Controller = nameof(BirthdayzBotController).Replace("Controller", ""),
+                        Action = nameof(BirthdayzBotController.Me)
+                    });
             });
             var info = _bot.MakeRequestAsync(new GetWebhookInfo()).Result;
-            var certificate = Configuration.GetValue<string>("Certificate");
+            //var certificate = Configuration.GetValue<string>("Certificate");
             var hostName = Configuration.GetValue<string>("HostName");
             if (Configuration.GetValue<bool>("UseWebhook") && !string.IsNullOrEmpty(certificate) && !string.IsNullOrEmpty(hostName))
             {
-                var url = $"https://{hostName}" + $"/{botName}/{apiToken}";
+                var url = $"https://{webhookRoute}";
                 var isWebhookSet = _bot.MakeRequestAsync(new SetWebhook(url, new FileToSend(new FileStream(certificate, FileMode.Open), "certificate.pem"))).Result;
                 // todo : log the result
             }
