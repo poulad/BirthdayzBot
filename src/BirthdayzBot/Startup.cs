@@ -66,7 +66,7 @@ namespace BirthdayzBot
                     });
             });
             var info = _bot.MakeRequestAsync(new GetWebhookInfo()).Result;
-            //var certificate = Configuration.GetValue<string>("Certificate");
+            var certificate = Configuration.GetValue<string>("Certificate");
             var hostName = Configuration.GetValue<string>("HostName");
             if (Configuration.GetValue<bool>("UseWebhook") && !string.IsNullOrEmpty(certificate) && !string.IsNullOrEmpty(hostName))
             {
