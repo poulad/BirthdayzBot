@@ -46,8 +46,7 @@ namespace BirthdayzBot.Controllers
                 if (update.Message.Text == null)
                     continue;
 
-                var command = BaseBotCommand.ParseCommand(update);
-                await _bot.MakeRequestAsync(command.GetResponse());
+                await RespondUpdate(update);
             }
             await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
             return Json(logs, new JsonSerializerSettings() { Formatting = Formatting.Indented });
@@ -62,6 +61,13 @@ namespace BirthdayzBot.Controllers
                 return BadRequest();
             }
 
+            await RespondUpdate(update);
+
+            return Ok();
+        }
+
+        private async Task RespondUpdate(Update update)
+        {
             var command = BaseBotCommand.ParseCommand(update);
             if (command == null)
                 await _bot.MakeRequestAsync(new SendMessage(update.Message.Chat.Id, "_Invalid command_")
@@ -72,8 +78,6 @@ namespace BirthdayzBot.Controllers
                 });
             else
                 await _bot.MakeRequestAsync(command.GetResponse());
-
-            return Ok();
         }
 
         private static Update ParseUpdate(object data)
