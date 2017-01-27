@@ -6,7 +6,7 @@ using NetTelegramBotApi.Types;
 
 namespace BirthdayzBot.Commands
 {
-    public class MyBdCommand : BotCommand
+    public class MyBdCommand : BaseBotCommand
     {
         private readonly BirthdayzContext _dbContext;
 
@@ -16,19 +16,20 @@ namespace BirthdayzBot.Commands
 
         public override string Name => "mybd";
 
-        public MyBdCommand()
+        public MyBdCommand(Update update, string args = null)
+            : base(update, args)
         {
             _dbContext = new BirthdayzContext();
         }
 
-        public override RequestBase<Message> GetResponse(string args, Message message)
+        public override RequestBase<Message> GetResponse()
         {
             string responseText = "";
-            EnsureUser(message);
-            EnsureChat(message);
+            EnsureUser(Update.Message);
+            EnsureChat(Update.Message);
             var birthday = _dbContext.Birthdays.FirstOrDefault(x => x.ChatId == _chat.Id && x.UserId == _user.Id);
 
-            if (string.IsNullOrWhiteSpace(args))
+            if (string.IsNullOrWhiteSpace(Args))
             {
                 if (birthday == null)
                 {
@@ -43,7 +44,7 @@ namespace BirthdayzBot.Commands
             else
             {
                 DateTime birthDate;
-                if (DateTime.TryParse(args, out birthDate))
+                if (DateTime.TryParse(Args, out birthDate))
                 {
                     if (birthday == null)
                     {
@@ -61,14 +62,14 @@ namespace BirthdayzBot.Commands
                 }
                 else
                 {
-                    responseText = $"Not a valid date: _{args}_";
+                    responseText = $"Not a valid date: _{Args}_";
                 }
             }
             _dbContext.SaveChanges();
-            return new SendMessage(message.Chat.Id, responseText)
+            return new SendMessage(Update.Message.Chat.Id, responseText)
             {
                 DisableNotification = true,
-                ReplyToMessageId = message.MessageId,
+                ReplyToMessageId = Update.Message.MessageId,
                 ParseMode = SendMessage.ParseModeEnum.Markdown,
             };
         }

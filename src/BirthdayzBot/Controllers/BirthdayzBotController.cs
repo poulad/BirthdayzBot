@@ -46,22 +46,8 @@ namespace BirthdayzBot.Controllers
                 if (update.Message.Text == null)
                     continue;
 
-                string args;
-                var commandType = BotCommand.ParseCommand(update.Message.Text, out args);
-                switch (commandType)
-                {
-                    case BotCommandType.MyBd:
-                        await _bot.MakeRequestAsync(new MyBdCommand().GetResponse(args, update.Message));
-                        break;
-                    case BotCommandType.Invalid:
-                        await _bot.MakeRequestAsync(new SendMessage(update.Message.Chat.Id, "_Invalid command_")
-                        {
-                            DisableNotification = true,
-                            ReplyToMessageId = update.Message.MessageId,
-                            ParseMode = SendMessage.ParseModeEnum.Markdown,
-                        });
-                        break;
-                }
+                var command = BaseBotCommand.ParseCommand(update);
+                await _bot.MakeRequestAsync(command.GetResponse());
             }
             await _bot.MakeRequestAsync(new GetUpdates() { Offset = offset });
             return Json(logs, new JsonSerializerSettings() { Formatting = Formatting.Indented });
@@ -76,13 +62,13 @@ namespace BirthdayzBot.Controllers
                 return BadRequest();
             }
 
-            await _bot.MakeRequestAsync(new ForwardMessage(update.Message.Chat.Id, update.Message.Chat.Id,
-                update.Message.MessageId));
+            var command = BaseBotCommand.ParseCommand(update);
+            await _bot.MakeRequestAsync(command.GetResponse());
 
             return Ok();
         }
 
-        private Update ParseUpdate(object data)
+        private static Update ParseUpdate(object data)
         {
             if (data == null)
                 return null;
