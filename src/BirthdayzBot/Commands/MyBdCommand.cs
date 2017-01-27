@@ -14,7 +14,9 @@ namespace BirthdayzBot.Commands
 
         private Models.Chat _chat;
 
-        public override string Name => "mybd";
+        public override string Name => _commandName;
+
+        private static readonly string _commandName = "mybd";
 
         public MyBdCommand(Update update, string args = null)
             : base(update, args)

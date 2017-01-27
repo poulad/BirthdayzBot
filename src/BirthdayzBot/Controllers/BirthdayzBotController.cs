@@ -63,7 +63,15 @@ namespace BirthdayzBot.Controllers
             }
 
             var command = BaseBotCommand.ParseCommand(update);
-            await _bot.MakeRequestAsync(command.GetResponse());
+            if (command == null)
+                await _bot.MakeRequestAsync(new SendMessage(update.Message.Chat.Id, "_Invalid command_")
+                {
+                    DisableNotification = true,
+                    ReplyToMessageId = update.Message.MessageId,
+                    ParseMode = SendMessage.ParseModeEnum.Markdown,
+                });
+            else
+                await _bot.MakeRequestAsync(command.GetResponse());
 
             return Ok();
         }
