@@ -47,6 +47,9 @@ namespace BirthdayzBot.Commands
                 case "mybd":
                     command = new MyBdCommand(update, args);
                     break;
+                case "bdz":
+                    command = new BdzCommand(update);
+                    break;
                 default:
                     command = null;
                     break;
