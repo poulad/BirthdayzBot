@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using BirthdayzBot.Models;
 using NetTelegramBotApi.Requests;
 using NetTelegramBotApi.Types;
@@ -26,7 +27,7 @@ namespace BirthdayzBot.Commands
 
         public override RequestBase<Message> GetResponse()
         {
-            string responseText = "";
+            string responseText;
             EnsureUser(Update.Message);
             EnsureChat(Update.Message);
             var birthday = _dbContext.Birthdays.FirstOrDefault(x => x.ChatId == _chat.Id && x.UserId == _user.Id);
@@ -45,8 +46,12 @@ namespace BirthdayzBot.Commands
             }
             else
             {
-                DateTime birthDate;
-                if (DateTime.TryParse(Args, out birthDate))
+                var birthDate = ParseDate(Args);
+                if (birthDate.Equals(new DateTime(1, 1, 1)))
+                {
+                    responseText = "Not a valid date. Try it like `jan 1 91` or `jan 1`";
+                }
+                else
                 {
                     if (birthday == null)
                     {
@@ -58,13 +63,8 @@ namespace BirthdayzBot.Commands
                         _dbContext.Birthdays.Add(birthday);
                     }
                     birthday.Birthdate = birthDate;
-
-                    if (_dbContext.Birthdays.Contains(birthday))
-                        responseText = $"*{birthDate:MMMM}, {birthDate:dd}*. Got it!";
-                }
-                else
-                {
-                    responseText = $"Not a valid date: _{Args}_";
+                    var formattedDate = birthDate.Year == 1 ? $"{birthDate:MMMM}, {birthDate:dd}" : $"{birthDate:MMMM} {birthDate:dd}, {birthDate.Year}";
+                    responseText = $"*{formattedDate}*. Got it!";
                 }
             }
             _dbContext.SaveChanges();
@@ -106,6 +106,26 @@ namespace BirthdayzBot.Commands
                 ChatType = message.Chat.Type
             };
             _dbContext.Chats.Add(_chat);
+        }
+
+        /// <summary>
+        /// Converts the input into a date
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>"1/1/1" if input is not valid. If input doesn't have year, Year will be 1</returns>
+        private static DateTime ParseDate(string input)
+        {
+            var date = new DateTime(1, 1, 1);
+            var match = Regex.Match(input, @"([a-z]{3})\s+(\d{1,2})(?:\s+(\d{2,4}))?", RegexOptions.IgnoreCase);
+            if (!match.Success)
+                return date;
+
+            var day = int.Parse(match.Groups[2].Value);
+            var year = string.IsNullOrEmpty(match.Groups[3].Value) ? -1 : int.Parse(match.Groups[3].Value);
+            var yearStr = year == -1 ? "0001" : $"{year:00}";
+            var formattedDate = $"{match.Groups[1].Value} {day:00} {yearStr}";
+            DateTime.TryParse(formattedDate, out date);
+            return date;
         }
     }
 }

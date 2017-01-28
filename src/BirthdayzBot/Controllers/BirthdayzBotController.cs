@@ -68,6 +68,9 @@ namespace BirthdayzBot.Controllers
 
         private async Task RespondUpdate(Update update)
         {
+            if (update.Message == null || update.Message.Text == null)
+                return;
+
             var command = BaseBotCommand.ParseCommand(update);
             if (command == null)
                 await _bot.MakeRequestAsync(new SendMessage(update.Message.Chat.Id, "_Invalid command_")
