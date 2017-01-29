@@ -246,3 +246,6 @@ ModelManifest.xml
 
 # Configuration files
 config.json
+
+# Settings for development time
+appsettings.[Dd]evelopment.json

@@ -64,13 +64,16 @@ namespace BirthdayzBot
             if (Configuration.GetValue<bool>("UseWebhook") && !string.IsNullOrEmpty(certificate) && !string.IsNullOrEmpty(hostName))
             {
                 var url = $"https://{hostName}/{webhookRoute}";
-
+                bool isWebhookSet;
                 if (env.IsDevelopment())
                 {
                     url = ""; // Cancel webhooks for development
+                    isWebhookSet = _bot.MakeRequestAsync(new SetWebhook(url)).Result;
                 }
-
-                var isWebhookSet = _bot.MakeRequestAsync(new SetWebhook(url, new FileToSend(new FileStream(certificate, FileMode.Open), "certificate.pem"))).Result;
+                else
+                {
+                    isWebhookSet = _bot.MakeRequestAsync(new SetWebhook(url, new FileToSend(new FileStream(certificate, FileMode.Open), "certificate.pem"))).Result;
+                }
                 // todo : log the result
             }
         }
