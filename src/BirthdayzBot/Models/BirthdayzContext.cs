@@ -16,7 +16,7 @@ namespace BirthdayzBot.Models
         {
             var config = new ConfigurationBuilder()
                .SetBasePath(System.IO.Directory.GetCurrentDirectory())
-               .AddEnvironmentVariables("Birthdayz_")
+               .AddEnvironmentVariables("BirthdayzBot_")
                .AddJsonFile("config.json", true)
                .Build();
 
