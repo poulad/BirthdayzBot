@@ -13,6 +13,7 @@ namespace BirthdayzBot
     public class Startup
     {
         public IConfigurationRoot Configuration { get; }
+
         private readonly TelegramBot _bot;
 
         public Startup(IHostingEnvironment env)

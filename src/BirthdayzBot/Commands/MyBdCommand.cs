@@ -79,17 +79,20 @@ namespace BirthdayzBot.Commands
         private void EnsureUser(Message message)
         {
             _user = _dbContext.Users.FirstOrDefault(x => x.Id == message.From.Id);
-            if (_user != null)
-                return;
+            var userAlreadyExists = _user != null;
 
-            _user = new Models.User()
+            if (!userAlreadyExists)
             {
-                Id = message.From.Id,
-                FirstName = message.From.FirstName,
-                UserName = message.From.Username,
-                LastName = message.From.LastName
-            };
-            _dbContext.Users.Add(_user);
+                _user = new Models.User
+                {
+                    Id = message.From.Id,
+                };
+                _dbContext.Users.Add(_user);
+            }
+
+            _user.FirstName = message.From.FirstName;
+            _user.LastName = message.From.LastName;
+            _user.UserName = message.From.Username;
         }
 
         private void EnsureChat(Message message)
