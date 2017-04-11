@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace BirthdayzBot.Models
 {
@@ -11,20 +10,12 @@ namespace BirthdayzBot.Models
 
         public DbSet<Birthday> Birthdays { get; set; }
 
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public BirthdayzContext(DbContextOptions<BirthdayzContext> options)
+            : base(options)
         {
-            var config = new ConfigurationBuilder()
-               .SetBasePath(System.IO.Directory.GetCurrentDirectory())
-               .AddEnvironmentVariables("BirthdayzBot_")
-               .AddJsonFile("config.json", true)
-               .Build();
-
-            var conn = config["BirthdayzConnectionString"];
-
-            optionsBuilder.UseNpgsql(conn);
+            
         }
-
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Birthday>().HasKey(bd => new { bd.UserId, bd.ChatId });

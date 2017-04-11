@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text.RegularExpressions;
+using BirthdayzBot.Models;
 using NetTelegramBotApi.Requests;
 using NetTelegramBotApi.Types;
 
@@ -24,7 +25,7 @@ namespace BirthdayzBot.Commands
 
         public abstract RequestBase<Message> GetResponse();
 
-        public static BaseBotCommand ParseCommand(Update update)
+        public static BaseBotCommand ParseCommand(Update update, BirthdayzContext dbContext)
         {
             BaseBotCommand command;
             var args = string.Empty;
@@ -45,10 +46,10 @@ namespace BirthdayzBot.Commands
             switch (commandText.ToLower())
             {
                 case "mybd":
-                    command = new MyBdCommand(update, args);
+                    command = new MyBdCommand(dbContext, update, args);
                     break;
                 case "bdz":
-                    command = new BdzCommand(update);
+                    command = new BdzCommand(dbContext, update);
                     break;
                 default:
                     command = null;
