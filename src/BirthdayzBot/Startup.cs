@@ -1,7 +1,9 @@
 ﻿using System.IO;
 using BirthdayzBot.Controllers;
+using BirthdayzBot.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -32,6 +34,7 @@ namespace BirthdayzBot
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton(provider => _bot);
+            services.AddDbContext<BirthdayzContext>(builder => builder.UseNpgsql(Configuration["BirthdayzConnectionString"]));
             services.AddMvc();
         }
 

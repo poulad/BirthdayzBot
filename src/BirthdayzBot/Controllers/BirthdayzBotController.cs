@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BirthdayzBot.Commands;
+using BirthdayzBot.Models;
 using Microsoft.AspNetCore.Mvc;
 using NetTelegramBotApi;
 using NetTelegramBotApi.Requests;
@@ -15,9 +16,12 @@ namespace BirthdayzBot.Controllers
     {
         private readonly TelegramBot _bot;
 
-        public BirthdayzBotController(TelegramBot bot)
+        private readonly BirthdayzContext _dbContext;
+
+        public BirthdayzBotController(TelegramBot bot, BirthdayzContext dbContext)
         {
             _bot = bot;
+            _dbContext = dbContext;
         }
 
         public async Task<IActionResult> Me()
@@ -71,7 +75,7 @@ namespace BirthdayzBot.Controllers
             if (update.Message == null || update.Message.Text == null)
                 return;
 
-            var command = BaseBotCommand.ParseCommand(update);
+            var command = BaseBotCommand.ParseCommand(update, _dbContext);
 
             if (command != null)
                 await _bot.MakeRequestAsync(command.GetResponse());

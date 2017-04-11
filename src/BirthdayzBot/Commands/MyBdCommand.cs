@@ -19,10 +19,10 @@ namespace BirthdayzBot.Commands
 
         private static readonly string _commandName = "mybd";
 
-        public MyBdCommand(Update update, string args = null)
+        public MyBdCommand(BirthdayzContext context, Update update, string args = null)
             : base(update, args)
         {
-            _dbContext = new BirthdayzContext();
+            _dbContext = context;
         }
 
         public override RequestBase<Message> GetResponse()
